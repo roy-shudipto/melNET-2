@@ -4,7 +4,7 @@ from datetime import datetime
 from loguru import logger
 from typing import List
 
-from defaults import (
+from melnet.defaults import (
     CONFIG_EXTENSION,
     MODEL_LIST,
     OPTIMIZER_LIST,
@@ -61,10 +61,12 @@ class TrainingConfig:
 
         # get checkpoint-directory
         current = datetime.now()
+
         checkpoint_name = (
-            f"{current.year}_{current.month}_{current.day}_{current.hour}_{current.minute}"
-            f"_{current.second}"
+            "checkpoint_"
+            + f"{current.year}{current.month}{current.day}{current.hour}{current.minute}{current.second}"
         )
+
         self.checkpoint_directory = self.checkpoint_root / pathlib.Path(checkpoint_name)
 
         # generate path for copying config-file

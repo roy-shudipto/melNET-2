@@ -4,6 +4,7 @@ import torch
 from loguru import logger
 
 from melnet.defaults import LOG_HEADERS
+from melnet.metric import Metric
 
 
 class Trainer:
@@ -28,8 +29,8 @@ class Trainer:
         self.scheduler = scheduler
         self.epochs = epochs
         self.dataloaders = {"train": train_dataloader, "val": val_dataloader}
-        self.checkpoint_path = (checkpoint_path,)
-        self.log_path = (log_path,)
+        self.checkpoint_path = checkpoint_path
+        self.log_path = log_path
 
     def run(self):
         # load model to the device
@@ -42,15 +43,15 @@ class Trainer:
         best_acc = 0.0
         best_loss = None
         best_epoch = None
-        best_model_wts = None
+        best_model_state_dict = None
 
         # iterate over each epoch
-        for epoch_idx in range(self.epochs + 1):
+        for epoch_idx in range(self.epochs):
             # count epoch from 1
             epoch = epoch_idx + 1
 
             # track epoch performance
-            epoch_performance = {"EPOCH": epoch}
+            metric = Metric()
 
             # each epoch has a training and validation phase
             for phase in ["train", "val"]:
@@ -90,45 +91,58 @@ class Trainer:
 
                 if phase == "train":
                     # update scheduler
-                    self.step_lr_scheduler.step()
+                    self.scheduler.step()
 
-                    # store result in epoch-performance
-                    epoch_performance.update(
-                        {"TRAIN LOSS": epoch_loss, "TRAIN ACCURACY": epoch_acc}
-                    )
+                    # store result in metric
+                    metric.train_loss = epoch_loss
+                    metric.train_acc = epoch_acc
                 else:
                     # deep copy the model if epoch accuracy improves
                     if epoch_acc >= best_acc:
                         best_acc = epoch_acc
                         best_loss = epoch_loss
-                        best_model_wts = copy.deepcopy(model.state_dict())
+                        best_model_state_dict = copy.deepcopy(model.state_dict())
                         best_epoch = epoch
 
-                    # store result in epoch-performance
-                    epoch_performance.update(
-                        {"VAL LOSS": epoch_loss, "VAL ACCURACY": epoch_acc}
-                    )
+                    # store result in metric
+                    metric.val_loss = epoch_loss
+                    metric.val_acc = epoch_acc
 
-            # epoch update
-            df_log = pd.concat([df_log, pd.DataFrame(epoch_performance)])
+            # update log
+            df_log = pd.concat(
+                [
+                    df_log,
+                    pd.DataFrame(
+                        {
+                            "EPOCH": [epoch],
+                            "TRAIN LOSS": [metric.train_loss],
+                            "TRAIN ACCURACY": [metric.train_acc],
+                            "VAL LOSS": [metric.val_loss],
+                            "VAL ACCURACY": [metric.val_acc],
+                        }
+                    ),
+                ],
+                axis=0,
+            )
+
             logger.info(
-                f"Epoch {epoch}/{self.epochs}: \
-                    Train Loss={epoch_performance['TRAIN LOSS']}, \
-                    Train Accuracy={epoch_performance['TRAIN ACCURACY']}, \
-                    Val Loss={epoch_performance['VAL LOSS']}, \
-                    Val Accuracy={epoch_performance['VAL ACCURACY']}"
+                f"Epoch {epoch}/{self.epochs}: "
+                + f"Train Loss={metric.train_loss:.2f}, "
+                + f"Train Accuracy={metric.train_acc:.2f}, "
+                + f"Val Loss={metric.val_loss:.2f}, "
+                + f"Val Accuracy={metric.val_acc:.2f}"
             )
 
         # best performance
         logger.info(
-            f"\nBest Performace: Epoch={best_epoch}, Loss={best_loss}, Accuracy={best_acc}"
+            f"Best Performace: Epoch={best_epoch}, Loss={best_loss:.2f}, Accuracy={best_acc:.2f}"
         )
 
         # save the best checkpoint
         torch.save(
             {
                 "epoch": best_epoch,
-                "model_state_dict": best_model_wts.state_dict(),
+                "model_state_dict": best_model_state_dict,
                 "optimizer_state_dict": self.optimizer.state_dict(),
                 "loss": best_loss,
             },

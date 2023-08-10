@@ -10,11 +10,11 @@ from torchvision import models
 def get_model(model_arch, classes):
     # load a pretrained model
     if model_arch.lower() == "resnet152":
-        model = models.resnet152(pretrained=True)
+        model = models.resnet152(weights="ResNet152_Weights.DEFAULT")
     elif model_arch.lower() == "resnet101":
-        model = models.resnet101(pretrained=True)
+        model = models.resnet101(weights="ResNet101_Weights.DEFAULT")
     elif model_arch.lower() == "resnet50":
-        model = models.resnet50(pretrained=True)
+        model = models.resnet50(weights="ResNet50_Weights.DEFAULT")
     else:
         sys.exit(f"[MODEL: {model_arch}] is not supported by PyTorch.")
 

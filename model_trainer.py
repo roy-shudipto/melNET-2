@@ -1,10 +1,9 @@
 import click
-import pandas as pd
 import pathlib
 import shutil
 from loguru import logger
 
-from melnet.trainer import TrainingConfig
+from melnet.config import TrainingConfig
 from melnet.dataset import ClassificationDatasetFolds
 from melnet.model import (
     get_model,
