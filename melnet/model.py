@@ -4,10 +4,11 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim import lr_scheduler
 from torchvision import models
+from loguru import logger
 
 
 # model
-def get_model(model_arch, classes):
+def get_model(model_arch, classes, load_checkpoint, fine_tune_fc):
     # load a pretrained model
     if model_arch.lower() == "resnet152":
         model = models.resnet152(weights="ResNet152_Weights.DEFAULT")
@@ -21,6 +22,23 @@ def get_model(model_arch, classes):
     # reset final layer as the number of classes
     num_ftrs = model.fc.in_features
     model.fc = nn.Linear(num_ftrs, classes)
+
+    # load checkpoint
+    if load_checkpoint is not None:
+        try:
+            checkpoint = torch.load(load_checkpoint)
+            model.load_state_dict(checkpoint["model_state_dict"])
+            logger.info(f"Successfully loaded checkpoint from: {load_checkpoint}")
+        except:
+            logger.error(f"Unable to load checkpoint from: {load_checkpoint}")
+            exit(1)
+
+    # fine-tune FC-layers only
+    if fine_tune_fc is True:
+        for name, para in model.named_parameters():
+            if name.find("fc") < 0:
+                para.requires_grad = False
+        logger.info("Fine-tuning only fully-connected layers.")
 
     return model
 

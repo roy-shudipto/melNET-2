@@ -57,7 +57,10 @@ def run_training(config):
 
     # get model definition
     model = get_model(
-        training_config.model_architecture, dataset_folds.number_of_classes
+        training_config.model_architecture,
+        dataset_folds.number_of_classes,
+        training_config.load_checkpoint,
+        training_config.fine_tune_fc,
     )
     device = get_device()
     criterion = get_loss_function()

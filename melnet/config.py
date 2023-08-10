@@ -35,6 +35,8 @@ class TrainingConfig:
         self.dataset_root = pathlib.Path(self._read_param(["DATASET_ROOT"], str))
         self.checkpoint_root = pathlib.Path(self._read_param(["CHECKPOINT_ROOT"], str))
         self.model_architecture = self._read_param(["MODEL_ARCHITECTURE"], str)
+        self.load_checkpoint = self._read_param(["LOAD_CHECKPOINT"], str)
+        self.fine_tune_fc = self._read_param(["FINE_TUNE_FC"], bool)
         self.optimizer = self._read_param(["OPTIMIZER"], str)
         self.learning_rate = self._read_param(["LEARNING_RATE"], float)
         self.schedular_step = self._read_param(["SCHEDULER_STEP"], float)
@@ -97,7 +99,10 @@ class TrainingConfig:
             # convert value to the expected datatype
             try:
                 logger.debug(f"Config {keys} = {obj}")
-                return data_type(obj)
+                if obj is not None:
+                    return data_type(obj)
+                else:
+                    return None
             except ValueError:
                 logger.error(f"Failed to convert {obj} to {data_type}.")
                 exit(1)
