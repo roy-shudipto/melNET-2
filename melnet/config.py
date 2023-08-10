@@ -43,6 +43,7 @@ class TrainingConfig:
         self.num_workers = self._read_param(["NUM_WORKER"], int)
         self.batch_size = self._read_param(["BATCH_SIZE"], int)
         self.epochs = self._read_param(["EPOCHS"], int)
+        self.input_size = self._read_param(["INPUT_SIZE"], int)
         self.cross_validation_fold = self._read_param(["CROSS_VALIDATION_FOLDS"], int)
         self.single_fold_split = self._read_param(["SINGLE_FOLD_SPLIT"], float)
 

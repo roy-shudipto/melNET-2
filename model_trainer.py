@@ -50,6 +50,7 @@ def run_training(config):
     # get multi-fold datasets
     dataset_folds = ClassificationDatasetFolds(
         dataset_root=training_config.dataset_root,
+        input_size=training_config.input_size,
         folds=training_config.cross_validation_fold,
         single_fold_split=training_config.single_fold_split,
     )

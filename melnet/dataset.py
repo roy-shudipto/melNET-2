@@ -30,8 +30,13 @@ class TrainingDataset(Dataset):
 
 class ClassificationDatasetFolds:
     def __init__(
-        self, dataset_root: pathlib.Path, folds: int, single_fold_split: float
+        self,
+        dataset_root: pathlib.Path,
+        input_size: int,
+        folds: int,
+        single_fold_split: float,
     ):
+        self.input_size = input_size
         self.folds = folds
         self.dataset_root = dataset_root
         self.single_fold_split = single_fold_split
@@ -71,7 +76,7 @@ class ClassificationDatasetFolds:
                 self.class_ids.append(idx)
 
         self.number_of_classes = len(self.class_map)
-        self.transform = Transforms(self.image_paths)
+        self.transform = Transforms(self.image_paths, self.input_size)
 
     def get_datasets(
         self, *, fold_index: int, batch_size: int, num_worker: int

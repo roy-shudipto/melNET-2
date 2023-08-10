@@ -10,4 +10,3 @@ LOG_HEADERS = [
     "VAL LOSS",
     "VAL ACCURACY",
 ]
-INPUT_SIZE = 400

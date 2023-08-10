@@ -3,13 +3,13 @@ from albumentations.pytorch import ToTensorV2
 import numpy as np
 import cv2
 
-from melnet.defaults import INPUT_SIZE
 from melnet.utils import get_RGB_image
 
 
 class Transforms:
-    def __init__(self, image_paths):
+    def __init__(self, image_paths, input_size):
         self.image_paths = image_paths
+        self.input_size = input_size
         self.mean = None
         self.std = None
 
@@ -21,7 +21,7 @@ class Transforms:
                 [
                     cv2.resize(
                         get_RGB_image(image_path, color_flag=1),
-                        (INPUT_SIZE, INPUT_SIZE),
+                        (self.input_size, self.input_size),
                     )
                     for image_path in self.image_paths
                 ],
@@ -37,7 +37,7 @@ class Transforms:
     def get_train_transform(self):
         return A.Compose(
             [
-                A.Resize(width=INPUT_SIZE, height=INPUT_SIZE),
+                A.Resize(width=self.input_size, height=self.input_size),
                 A.HorizontalFlip(p=0.5),
                 A.VerticalFlip(p=0.5),
                 A.RGBShift(p=0.5),
@@ -52,7 +52,7 @@ class Transforms:
     def get_val_transform(self):
         return A.Compose(
             [
-                A.Resize(width=INPUT_SIZE, height=INPUT_SIZE),
+                A.Resize(width=self.input_size, height=self.input_size),
                 A.Normalize(
                     mean=self.mean,
                     std=self.std,
