@@ -1,7 +1,7 @@
 import albumentations as A
-from albumentations.pytorch import ToTensorV2
-import numpy as np
 import cv2
+import numpy as np
+from albumentations.pytorch import ToTensorV2
 
 from melnet.utils import get_RGB_image
 

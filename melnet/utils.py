@@ -1,6 +1,6 @@
 import cv2
-import pathlib
 import numpy as np
+import pathlib
 
 
 def get_RGB_image(filepath: pathlib.Path, color_flag: int = 1):

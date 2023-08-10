@@ -5,11 +5,11 @@ from loguru import logger
 from typing import List
 
 from melnet.defaults import (
+    CHECKPOINT_EXTENSION,
     CONFIG_EXTENSION,
+    LOG_EXTENSION,
     MODEL_LIST,
     OPTIMIZER_LIST,
-    LOG_EXTENSION,
-    CHECKPOINT_EXTENSION,
 )
 
 

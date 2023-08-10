@@ -2,9 +2,9 @@ import sys
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from loguru import logger
 from torch.optim import lr_scheduler
 from torchvision import models
-from loguru import logger
 
 
 # model
