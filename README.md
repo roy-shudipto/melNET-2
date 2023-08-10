@@ -1,6 +1,9 @@
 # melNET-2
 This is a pipeline to train classification model for detecting Melanoma in digital images.
 
+### Install requirements
+`pip install -r requirements.txt`
+
 ### Check help
 `python3 model_trainer.py --help`
 
