@@ -1,53 +1,10 @@
-import albumentations as A
-import cv2
 import pathlib
-from albumentations.pytorch import ToTensorV2
 from loguru import logger
 from sklearn.model_selection import StratifiedKFold
 from torch.utils.data import DataLoader, Dataset
 from typing import List
-
-
-# compose transform
-train_transform = A.Compose(
-    [
-        A.Resize(width=400, height=400),
-        A.HorizontalFlip(p=0.5),
-        A.VerticalFlip(p=0.5),
-        A.RGBShift(p=0.5),
-        A.Normalize(
-            mean=(0.63918286, 0.43600938, 0.32808192),
-            std=(0.14957589, 0.13829103, 0.11973361),
-            max_pixel_value=255.0,
-        ),
-        ToTensorV2(),
-    ]
-)
-val_transform = A.Compose(
-    [
-        A.Resize(width=400, height=400),
-        A.Normalize(
-            mean=(0.63918286, 0.43600938, 0.32808192),
-            std=(0.14957589, 0.13829103, 0.11973361),
-            max_pixel_value=255.0,
-        ),
-        ToTensorV2(),
-    ]
-)
-
-
-def get_image(filepath: pathlib.Path, color_flag: int = 1):
-    if color_flag not in [0, 1]:
-        exit("Expected color-flag: [0, 1]")
-    try:
-        image = cv2.imread(filepath.as_posix(), color_flag)
-    except AssertionError:
-        exit(f"Unable to read image from: [{filepath}].")
-
-    if image is None:
-        exit(f"[{filepath}] returns a None object.")
-
-    return image
+from melnet.transforms import Transforms
+from melnet.utils import get_RGB_image
 
 
 class TrainingDataset(Dataset):
@@ -59,7 +16,7 @@ class TrainingDataset(Dataset):
 
     def __getitem__(self, index):
         # read the image
-        image = get_image(pathlib.Path(self.img_list[index]), color_flag=1)
+        image = get_RGB_image(pathlib.Path(self.img_list[index]), color_flag=1)
 
         # read class-id
         class_id = self.cls_list[index]
@@ -82,6 +39,7 @@ class ClassificationDatasetFolds:
         self.class_ids: List = []
         self.class_map: dict = {}
         self.number_of_classes = None
+        self.transform = None
 
         # for a single fold, use single_fold_split (train/val split)
         # we can use StratifiedKFold for this purpose: n_splits = 1/(1-train_split)
@@ -113,6 +71,7 @@ class ClassificationDatasetFolds:
                 self.class_ids.append(idx)
 
         self.number_of_classes = len(self.class_map)
+        self.transform = Transforms(self.image_paths)
 
     def get_datasets(
         self, *, fold_index: int, batch_size: int, num_worker: int
@@ -134,7 +93,7 @@ class ClassificationDatasetFolds:
             train_dataset = TrainingDataset(
                 [self.image_paths[i] for i in train_index],
                 [self.class_ids[i] for i in train_index],
-                train_transform,
+                self.transform.get_train_transform(),
             )
             train_dataloader = DataLoader(
                 train_dataset,
@@ -147,7 +106,7 @@ class ClassificationDatasetFolds:
             val_dataset = TrainingDataset(
                 [self.image_paths[i] for i in val_index],
                 [self.class_ids[i] for i in val_index],
-                val_transform,
+                self.transform.get_val_transform(),
             )
             val_dataloader = DataLoader(
                 val_dataset, batch_size=batch_size, shuffle=True, num_workers=num_worker
