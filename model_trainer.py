@@ -51,6 +51,7 @@ def run_training(config):
     dataset_folds = ClassificationDatasetFolds(
         dataset_root=training_config.dataset_root,
         folds=training_config.cross_validation_fold,
+        single_fold_split=training_config.single_fold_split,
     )
 
     # get model definition
@@ -68,6 +69,7 @@ def run_training(config):
     scheduler = get_scheduler(
         optimizer, training_config.schedular_step, training_config.schedular_gamma
     )
+    logger.info(f"Model is initialized to get trained on: {device}")
 
     # run training for each fold
     for fold in range(training_config.cross_validation_fold):
@@ -94,7 +96,7 @@ def run_training(config):
 
         # run trainer
         logger.info(
-            f"Starting training for fold: {fold + 1}/{training_config.cross_validation_fold}."
+            f"Starting training for fold: {fold + 1}/{training_config.cross_validation_fold}"
         )
         trainer.run()
 
@@ -102,5 +104,5 @@ def run_training(config):
 
 
 if __name__ == "__main__":
-    logger.info("Running model-training.")
+    logger.info("Running model-training pipeline.")
     run_training()

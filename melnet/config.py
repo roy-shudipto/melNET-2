@@ -44,6 +44,7 @@ class TrainingConfig:
         self.batch_size = self._read_param(["BATCH_SIZE"], int)
         self.epochs = self._read_param(["EPOCHS"], int)
         self.cross_validation_fold = self._read_param(["CROSS_VALIDATION_FOLDS"], int)
+        self.single_fold_split = self._read_param(["SINGLE_FOLD_SPLIT"], float)
 
         # check: model_architecture is supported
         if self.model_architecture not in MODEL_LIST:
@@ -59,12 +60,25 @@ class TrainingConfig:
             logger.error(f"Supported Optimizers: {OPTIMIZER_LIST}.")
             exit(1)
 
+        # check: cross_validation_fold is valid
+        if self.cross_validation_fold <= 0:
+            logger.error(
+                f"Cross Valiadation Fold: {self.cross_validation_fold} is not supported."
+            )
+            logger.error("Supported Cross Valiadation Fold: any integer bigger than 0.")
+            exit(1)
+
         # get checkpoint-directory
         current = datetime.now()
 
         checkpoint_name = (
             "checkpoint_"
-            + f"{current.year}{current.month}{current.day}{current.hour}{current.minute}{current.second}"
+            + str(current.year)
+            + str(current.month).zfill(2)
+            + str(current.day).zfill(2)
+            + str(current.hour).zfill(2)
+            + str(current.minute).zfill(2)
+            + str(current.second).zfill(2)
         )
 
         self.checkpoint_directory = self.checkpoint_root / pathlib.Path(checkpoint_name)

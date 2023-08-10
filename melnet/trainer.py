@@ -63,6 +63,7 @@ class Trainer:
                 # iterate over data
                 running_loss = 0.0
                 running_corrects = 0
+                num_samples = 0
                 for inputs, labels in self.dataloaders[phase]:
                     inputs = inputs.to(self.device)
                     labels = labels.to(self.device)
@@ -82,12 +83,17 @@ class Trainer:
                     # iteration statistics
                     running_loss += loss.item() * inputs.size(0)
                     running_corrects += torch.sum(preds == labels.data)
+                    num_samples += labels.shape[0]
 
                 # epoch statistics
-                epoch_loss = running_loss / len(self.dataloaders[phase])
-                epoch_acc = (
-                    running_corrects.double() / len(self.dataloaders[phase])
-                ).item()
+                epoch_loss = round((running_loss / num_samples), 2)
+                epoch_acc = round(
+                    (
+                        running_corrects.double().detach().cpu().numpy() / num_samples
+                    ).item()
+                    * 100.0,
+                    2,
+                )
 
                 if phase == "train":
                     # update scheduler
@@ -126,7 +132,7 @@ class Trainer:
             )
 
             logger.info(
-                f"Epoch {epoch}/{self.epochs}: "
+                f"Epoch {str(epoch).zfill(len(str(self.epochs)))}/{self.epochs}: "
                 + f"Train Loss={metric.train_loss:.2f}, "
                 + f"Train Accuracy={metric.train_acc:.2f}, "
                 + f"Val Loss={metric.val_loss:.2f}, "

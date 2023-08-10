@@ -9,12 +9,23 @@ from typing import List
 
 
 # compose transform
-transform = A.Compose(
+train_transform = A.Compose(
     [
         A.Resize(width=400, height=400),
         A.HorizontalFlip(p=0.5),
         A.VerticalFlip(p=0.5),
         A.RGBShift(p=0.5),
+        A.Normalize(
+            mean=(0.63918286, 0.43600938, 0.32808192),
+            std=(0.14957589, 0.13829103, 0.11973361),
+            max_pixel_value=255.0,
+        ),
+        ToTensorV2(),
+    ]
+)
+val_transform = A.Compose(
+    [
+        A.Resize(width=400, height=400),
         A.Normalize(
             mean=(0.63918286, 0.43600938, 0.32808192),
             std=(0.14957589, 0.13829103, 0.11973361),
@@ -61,16 +72,32 @@ class TrainingDataset(Dataset):
 
 
 class ClassificationDatasetFolds:
-    def __init__(self, dataset_root: pathlib.Path, folds: int):
+    def __init__(
+        self, dataset_root: pathlib.Path, folds: int, single_fold_split: float
+    ):
         self.folds = folds
         self.dataset_root = dataset_root
+        self.single_fold_split = single_fold_split
         self.image_paths: List = []
         self.class_ids: List = []
         self.class_map: dict = {}
         self.number_of_classes = None
-        self.skf = StratifiedKFold(
-            n_splits=self.folds, shuffle=False, random_state=None
-        )
+
+        # for a single fold, use single_fold_split (train/val split)
+        # we can use StratifiedKFold for this purpose: n_splits = 1/(1-train_split)
+        if self.folds == 1:
+            self.skf = StratifiedKFold(
+                n_splits=round(1 / (1 - self.single_fold_split)),
+                shuffle=False,
+                random_state=None,
+            )
+            logger.info(
+                f"Single fold detected. Using train/val split of {single_fold_split:.2f}/{1-single_fold_split:.2f}"
+            )
+        else:
+            self.skf = StratifiedKFold(
+                n_splits=self.folds, shuffle=False, random_state=None
+            )
 
         self._get_data()
 
@@ -107,7 +134,7 @@ class ClassificationDatasetFolds:
             train_dataset = TrainingDataset(
                 [self.image_paths[i] for i in train_index],
                 [self.class_ids[i] for i in train_index],
-                transform,
+                train_transform,
             )
             train_dataloader = DataLoader(
                 train_dataset,
@@ -120,7 +147,7 @@ class ClassificationDatasetFolds:
             val_dataset = TrainingDataset(
                 [self.image_paths[i] for i in val_index],
                 [self.class_ids[i] for i in val_index],
-                transform,
+                val_transform,
             )
             val_dataloader = DataLoader(
                 val_dataset, batch_size=batch_size, shuffle=True, num_workers=num_worker
