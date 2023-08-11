@@ -22,7 +22,7 @@ from melnet.trainer import Trainer
     required=True,
     help="Path to the training-config [.yaml] file.",
 )
-def run_training(config):
+def run_training(config) -> None:
     # convert config from str to pathlib.Path
     config = pathlib.Path(config)
 

@@ -2,7 +2,7 @@ import pathlib
 import yaml
 from datetime import datetime
 from loguru import logger
-from typing import List
+from typing import List, Optional
 
 from melnet.defaults import (
     CHECKPOINT_EXTENSION,
@@ -14,7 +14,7 @@ from melnet.defaults import (
 
 
 class TrainingConfig:
-    def __init__(self, config_path: pathlib.Path):
+    def __init__(self, config_path: pathlib.Path) -> None:
         logger.info(f"Reading config-file: {config_path}")
 
         # check config-file extension
@@ -89,7 +89,7 @@ class TrainingConfig:
         # generate path for copying config-file
         self.config_dst = self.checkpoint_directory / config_path.name
 
-    def _read_param(self, keys: List, data_type: type):
+    def _read_param(self, keys: List, data_type: type) -> Optional[any]:
         # get the parameter value
         try:
             obj = self.config
@@ -111,10 +111,10 @@ class TrainingConfig:
             logger.error(f"Key: {keys} is not found in the config.")
             exit(1)
 
-    def get_log_path(self, fold: int):
+    def get_log_path(self, fold: int) -> pathlib.Path:
         filename = f"log_fold{fold}{LOG_EXTENSION}"
         return self.checkpoint_directory / pathlib.Path(filename)
 
-    def get_checkpoint_path(self, fold: int):
+    def get_checkpoint_path(self, fold: int) -> pathlib.Path:
         filename = f"checkpoint_fold{fold}{CHECKPOINT_EXTENSION}"
         return self.checkpoint_directory / pathlib.Path(filename)

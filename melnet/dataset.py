@@ -2,20 +2,20 @@ import pathlib
 from loguru import logger
 from sklearn.model_selection import StratifiedKFold
 from torch.utils.data import DataLoader, Dataset
-from typing import List
+from typing import List, Tuple
 
 from melnet.transforms import Transforms
 from melnet.utils import get_RGB_image
 
 
 class TrainingDataset(Dataset):
-    def __init__(self, img_paths, class_ids, transform):
+    def __init__(self, img_paths, class_ids, transform) -> None:
         # class variables
         self.img_list = img_paths
         self.cls_list = class_ids
         self.transform = transform
 
-    def __getitem__(self, index):
+    def __getitem__(self, index) -> Tuple:
         # read the image
         image = get_RGB_image(pathlib.Path(self.img_list[index]), color_flag=1)
 
@@ -25,7 +25,7 @@ class TrainingDataset(Dataset):
         # return the package
         return self.transform(image=image)["image"], class_id
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.img_list)
 
 
@@ -36,7 +36,7 @@ class ClassificationDatasetFolds:
         input_size: int,
         folds: int,
         single_fold_split: float,
-    ):
+    ) -> None:
         self.input_size = input_size
         self.folds = folds
         self.dataset_root = dataset_root
@@ -65,7 +65,7 @@ class ClassificationDatasetFolds:
 
         self._get_data()
 
-    def _get_data(self):
+    def _get_data(self) -> None:
         for idx, dataset_dir in enumerate(self.dataset_root.iterdir()):
             if not dataset_dir.is_dir():
                 continue

@@ -1,9 +1,8 @@
-import sys
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from loguru import logger
 from torch.optim import lr_scheduler
+from loguru import logger
 from torchvision import models
 
 
@@ -17,7 +16,8 @@ def get_model(model_arch, classes, load_checkpoint, fine_tune_fc):
     elif model_arch.lower() == "resnet50":
         model = models.resnet50(weights="ResNet50_Weights.DEFAULT")
     else:
-        sys.exit(f"[MODEL: {model_arch}] is not supported by PyTorch.")
+        logger.error(f"[MODEL: {model_arch}] is not supported by PyTorch.")
+        exit(1)
 
     # reset final layer as the number of classes
     num_ftrs = model.fc.in_features
@@ -44,28 +44,27 @@ def get_model(model_arch, classes, load_checkpoint, fine_tune_fc):
 
 
 # device
-def get_device():
+def get_device() -> torch.device:
     return torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
 # loss-function
-def get_loss_function():
+def get_loss_function() -> nn.CrossEntropyLoss:
     return nn.CrossEntropyLoss()
 
 
 # optimizer
-def get_optimizer(optimizer_name, model, lr, momentum=None):
+def get_optimizer(optimizer_name, model, lr, momentum=None) -> optim.Optimizer:
     # define optimizer
     if optimizer_name.upper() == "SGD":
-        optimizer = optim.SGD(model.parameters(), lr=lr, momentum=momentum)
+        return optim.SGD(model.parameters(), lr=lr, momentum=momentum)
     elif optimizer_name.upper() == "ADAM":
-        optimizer = optim.Adam(model.parameters(), lr=lr)
+        return optim.Adam(model.parameters(), lr=lr)
     else:
-        sys.exit(f"[OPTIMIZER: {optimizer_name}] is not supported by PyTorch.")
-
-    return optimizer
+        logger.error(f"[OPTIMIZER: {optimizer_name}] is not supported by PyTorch.")
+        exit(1)
 
 
 # lr-scheduler
-def get_scheduler(optimizer, step, gamma):
+def get_scheduler(optimizer, step, gamma) -> lr_scheduler.StepLR:
     return lr_scheduler.StepLR(optimizer, step_size=step, gamma=gamma)

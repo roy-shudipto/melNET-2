@@ -7,7 +7,7 @@ from melnet.utils import get_RGB_image
 
 
 class Transforms:
-    def __init__(self, image_paths, input_size):
+    def __init__(self, image_paths, input_size) -> None:
         self.image_paths = image_paths
         self.input_size = input_size
         self.mean = None
@@ -15,7 +15,7 @@ class Transforms:
 
         self.calc_mean_std()
 
-    def calc_mean_std(self):
+    def calc_mean_std(self) -> None:
         rgb_values = (
             np.concatenate(
                 [
@@ -34,7 +34,7 @@ class Transforms:
         self.mean = np.mean(rgb_values, axis=0)
         self.std = np.std(rgb_values, axis=0)
 
-    def get_train_transform(self):
+    def get_train_transform(self) -> A.Compose:
         return A.Compose(
             [
                 A.Resize(width=self.input_size, height=self.input_size),
@@ -49,7 +49,7 @@ class Transforms:
             ]
         )
 
-    def get_val_transform(self):
+    def get_val_transform(self) -> A.Compose:
         return A.Compose(
             [
                 A.Resize(width=self.input_size, height=self.input_size),

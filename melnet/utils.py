@@ -3,7 +3,7 @@ import numpy as np
 import pathlib
 
 
-def get_RGB_image(filepath: pathlib.Path, color_flag: int = 1):
+def get_RGB_image(filepath: pathlib.Path, color_flag: int = 1) -> np.ndarray:
     if color_flag not in [0, 1]:
         exit("Expected color-flag: [0, 1]")
     try:

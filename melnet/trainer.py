@@ -21,7 +21,7 @@ class Trainer:
         val_dataloader,
         checkpoint_path,
         log_path,
-    ):
+    ) -> None:
         self.model = model
         self.device = device
         self.criterion = criterion
@@ -32,7 +32,7 @@ class Trainer:
         self.checkpoint_path = checkpoint_path
         self.log_path = log_path
 
-    def run(self):
+    def run(self) -> None:
         # load model to the device
         model = self.model.to(self.device)
 

@@ -1,5 +1,5 @@
 class Metric:
-    def __init__(self):
+    def __init__(self) -> None:
         self.train_loss = None
         self.train_acc = None
         self.val_loss = None
