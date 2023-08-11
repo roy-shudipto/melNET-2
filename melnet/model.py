@@ -7,7 +7,7 @@ from torchvision import models
 
 
 # model
-def get_model(model_arch, classes, load_checkpoint, fine_tune_fc):
+def get_model(*, model_arch, classes, load_checkpoint, fine_tune_fc):
     # load a pretrained model
     if model_arch.lower() == "resnet152":
         model = models.resnet152(weights="ResNet152_Weights.DEFAULT")
