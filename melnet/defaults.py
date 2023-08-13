@@ -10,3 +10,7 @@ LOG_HEADERS = [
     "VAL LOSS",
     "VAL ACCURACY",
 ]
+CLASS_MAP = {
+    "not_melanoma": 0,
+    "melanoma": 1,
+}

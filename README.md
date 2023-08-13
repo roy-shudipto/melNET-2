@@ -5,7 +5,7 @@ This is a pipeline to train classification model for detecting Melanoma in digit
 `pip install -r requirements.txt`
 
 ### Check help
-`python3 model_trainer.py --help`
+`python3 melnet_trainer.py --help`
 
 ### Run training
-`python3 model_trainer.py --config training_config.yaml`
+`python3 melnet_trainer.py --config training_config.yaml`

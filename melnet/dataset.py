@@ -1,11 +1,11 @@
 import pathlib
 from loguru import logger
-from sklearn.model_selection import StratifiedKFold
 from torch.utils.data import DataLoader, Dataset
 from typing import List, Tuple
 
+from melnet.defaults import CLASS_MAP
 from melnet.transforms import Transforms
-from melnet.utils import get_RGB_image
+from melnet.utils import get_RGB_image, get_skf, init_counter, valid_counter
 
 
 class TrainingDataset(Dataset):
@@ -37,55 +37,51 @@ class ClassificationDatasetFolds:
         folds: int,
         single_fold_split: float,
     ) -> None:
+        self.dataset_root = dataset_root
         self.input_size = input_size
         self.folds = folds
-        self.dataset_root = dataset_root
-        self.single_fold_split = single_fold_split
+        self.skf = get_skf(folds, single_fold_split)
         self.image_paths: List = []
+        self.class_map: dict = CLASS_MAP
+        self.number_of_classes = len(CLASS_MAP.keys())
+        self.class_count = init_counter(CLASS_MAP)
         self.class_ids: List = []
-        self.class_map: dict = {}
-        self.number_of_classes = None
-        self.transform = None
 
-        # for a single fold, use single_fold_split (train/val split)
-        # we can use StratifiedKFold for this purpose: n_splits = 1/(1-train_split)
-        if self.folds == 1:
-            self.skf = StratifiedKFold(
-                n_splits=round(1 / (1 - self.single_fold_split)),
-                shuffle=False,
-                random_state=None,
-            )
-            logger.info(
-                f"Single fold detected. Using train/val split of {single_fold_split:.2f}/{1-single_fold_split:.2f}"
-            )
+        self._init_dataset()
+
+        logger.info(f"Number of classes: {self.number_of_classes}")
+        logger.info(f"Class Map: {self.class_map}")
+
+        if valid_counter(self.class_count) is False:
+            logger.error(f"Class Count: {self.class_count} is not valid.")
+            exit(1)
+
         else:
-            self.skf = StratifiedKFold(
-                n_splits=self.folds, shuffle=False, random_state=None
-            )
+            logger.info(f"Class Count: {self.class_count}")
 
-        self._get_data()
+        self.transform = Transforms(self.image_paths, self.input_size)
 
-    def _get_data(self) -> None:
-        for idx, dataset_dir in enumerate(self.dataset_root.iterdir()):
+    def _init_dataset(self) -> None:
+        for dataset_dir in self.dataset_root.iterdir():
             if not dataset_dir.is_dir():
                 continue
-            self.class_map[idx] = dataset_dir.name
+            if dataset_dir.name not in self.class_map.keys():
+                continue
             for dataset_file in dataset_dir.iterdir():
                 if not dataset_file.is_file():
                     continue
                 self.image_paths.append(dataset_file)
-                self.class_ids.append(idx)
-
-        self.number_of_classes = len(self.class_map)
-        self.transform = Transforms(self.image_paths, self.input_size)
+                self.class_ids.append(self.class_map[dataset_dir.name])
+                self.class_count[dataset_dir.name] += 1
 
     def get_datasets(
         self, *, fold_index: int, batch_size: int, num_worker: int
     ) -> dict:
         # check: valid fold-index
         if fold_index < 0 or fold_index >= self.folds:
-            logger.error(f"Received invalid fold index: {fold_index}")
+            logger.error(f"Number of folds: {self.folds}")
             logger.error(f"Fold index needs be within: 0 to {self.folds-1}")
+            logger.error(f"Received invalid fold index: {fold_index}")
             exit(1)
 
         # return dataloader-dictionary for the input fold-index
