@@ -4,7 +4,8 @@ import torch
 from loguru import logger
 
 from melnet.defaults import LOG_HEADERS
-from melnet.metric import Metric
+from melnet.metric import Metric, MetricNew
+from melnet.utils import gpu2cpu
 
 
 class Trainer:
@@ -61,9 +62,6 @@ class Trainer:
                     model.eval()  # set model to evaluate mode
 
                 # iterate over data
-                running_loss = 0.0
-                running_corrects = 0
-                num_samples = 0
                 for inputs, labels in self.dataloaders[phase]:
                     inputs = inputs.to(self.device)
                     labels = labels.to(self.device)
@@ -80,28 +78,21 @@ class Trainer:
                             loss.backward()
                             self.optimizer.step()
 
-                    # iteration statistics
-                    running_loss += loss.item() * inputs.size(0)
-                    running_corrects += torch.sum(preds == labels.data)
-                    num_samples += labels.shape[0]
+                    # update metric
+                    metric.update(
+                        phase=phase,
+                        loss=loss.item() * inputs.size(0),
+                        y_true=gpu2cpu(labels),
+                        y_pred=gpu2cpu(preds),
+                    )
 
                 # epoch statistics
-                epoch_loss = round((running_loss / num_samples), 2)
-                epoch_acc = round(
-                    (
-                        running_corrects.double().detach().cpu().numpy() / num_samples
-                    ).item()
-                    * 100.0,
-                    2,
-                )
+                metric.calc_score(phase=phase)
 
                 if phase == "train":
                     # update scheduler
                     self.scheduler.step()
 
-                    # store result in metric
-                    metric.train_loss = epoch_loss
-                    metric.train_acc = epoch_acc
                 else:
                     # deep copy the model if epoch accuracy improves
                     if epoch_acc >= best_acc:
@@ -138,6 +129,9 @@ class Trainer:
                 + f"Val Loss={metric.val_loss:.2f}, "
                 + f"Val Accuracy={metric.val_acc:.2f}"
             )
+            print(metric_new.loss)
+            print(metric_new.accuracy)
+            exit()
 
         # best performance
         logger.info(

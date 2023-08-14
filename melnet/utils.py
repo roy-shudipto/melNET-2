@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import pathlib
+import torch
 from loguru import logger
 from sklearn.model_selection import StratifiedKFold
 
@@ -47,3 +48,7 @@ def get_skf(folds: int, single_fold_split: float) -> StratifiedKFold:
             shuffle=False,
             random_state=None,
         )
+
+
+def gpu2cpu(t: torch.tensor) -> np.ndarray:
+    return t.detach().cpu().numpy()
