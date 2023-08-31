@@ -1,11 +1,18 @@
 import pathlib
+from collections import Counter
 from loguru import logger
 from torch.utils.data import DataLoader, Dataset
 from typing import List, Tuple
 
 from melnet.defaults import CLASS_MAP
 from melnet.transforms import Transforms
-from melnet.utils import get_RGB_image, get_skf, init_counter, valid_counter
+from melnet.utils import (
+    get_RGB_image,
+    get_skf,
+    init_counter,
+    valid_counter,
+    map_counter,
+)
 
 
 class TrainingDataset(Dataset):
@@ -14,6 +21,8 @@ class TrainingDataset(Dataset):
         self.img_list = img_paths
         self.cls_list = class_ids
         self.transform = transform
+
+        self.class_counter = map_counter(CLASS_MAP, dict(Counter(self.cls_list)))
 
     def __getitem__(self, index) -> Tuple:
         # read the image
@@ -113,5 +122,8 @@ class ClassificationDatasetFolds:
             val_dataloader = DataLoader(
                 val_dataset, batch_size=batch_size, shuffle=True, num_workers=num_worker
             )
+
+            logger.info(f"Training class-counter: {train_dataset.class_counter}")
+            logger.info(f"Validation class-counter: {val_dataset.class_counter}")
 
             return {"train": train_dataloader, "val": val_dataloader}

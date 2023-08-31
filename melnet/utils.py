@@ -52,3 +52,10 @@ def get_skf(folds: int, single_fold_split: float) -> StratifiedKFold:
 
 def gpu2cpu(t: torch.tensor) -> np.ndarray:
     return t.detach().cpu().numpy()
+
+
+def map_counter(class_map, class_counter) -> dict:
+    d = {}
+    for key, val in class_map.items():
+        d[key] = class_counter[val]
+    return d

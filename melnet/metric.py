@@ -1,4 +1,5 @@
 import numpy as np
+from loguru import logger
 from sklearn.metrics import confusion_matrix
 
 
@@ -18,17 +19,32 @@ class Metric:
 
     @classmethod
     def calc_confusion_matrix(cls, y_true, y_pred):
+        # returning order: tn, fp, fn, tp
         # sklearn.metrics->confusion_matrix seems to have a bug.
         # it returns [[batch_size]] in the case of all TNs and all TPs.
-        if not np.array_equal(y_true.ravel(), y_pred.ravel()):
-            return confusion_matrix(y_true, y_pred).ravel()
 
-        # all true-negatives
-        if np.sum(y_true) == 0:
-            return len(y_true), 0, 0, 0
+        # calculate confusion matrix
+        cm = confusion_matrix(y_true, y_pred).ravel()
 
-        # all true-positives
-        return 0, 0, 0, len(y_true)
+        # case: tn, fp, fn, tp are available
+        if len(cm) == 4:
+            return tuple(cm)
+
+        # case: either tn or tp is available
+        elif len(cm) == 1:
+            # case: all true-negatives
+            if np.sum(y_true) == np.sum(y_pred) == 0:
+                return len(y_true), 0, 0, 0
+
+            # case: all true-positives
+            elif np.sum(y_true) == np.sum(y_pred) == len(y_true):
+                return 0, 0, 0, len(y_true)
+
+        logger.error(
+            f"Invalid confusion matrix for y_true: [{y_true}], y_pred: [{y_pred}]"
+        )
+        logger.error(f"Calculated confusion matrix: [{cm}]]")
+        exit(1)
 
     def update(self, *, phase, loss, y_true, y_pred):
         # update loss

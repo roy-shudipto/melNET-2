@@ -55,6 +55,10 @@ def train(training_config: dict) -> None:
 
     # run training for each fold
     for fold in range(training_config.cross_validation_fold):
+        logger.info(
+            f"Starting training for fold: {fold + 1}/{training_config.cross_validation_fold}"
+        )
+
         # get dataloader-dictionary
         dataloader_dict = dataset_folds.get_datasets(
             fold_index=fold,
@@ -77,9 +81,6 @@ def train(training_config: dict) -> None:
         )
 
         # run trainer
-        logger.info(
-            f"Starting training for fold: {fold + 1}/{training_config.cross_validation_fold}"
-        )
         trainer.run()
 
     logger.info("Successfully completed the training.")
