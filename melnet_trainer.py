@@ -15,18 +15,13 @@ from melnet.trainer import Trainer
 
 
 def train(training_config: dict) -> None:
-    # create a directory for checkpoint (if needed)
-    if not training_config.checkpoint_directory.exists():
-        training_config.checkpoint_directory.mkdir(parents=True, exist_ok=True)
-        logger.info(
-            f"Successfully created checkpoint directory: {training_config.checkpoint_directory}"
-        )
-    else:
-        logger.info(
-            f"Checkpoint directory already exists: {training_config.checkpoint_directory}"
-        )
+    # create a directory for checkpoint
+    training_config.checkpoint_directory.mkdir(parents=True, exist_ok=True)
+    logger.info(
+        f"Successfully created checkpoint directory: {training_config.checkpoint_directory}"
+    )
 
-    # save training-config to the checkpoint-directory
+    # save training-config in checkpoint-directory
     training_config.save()
     logger.info(f"Training-config is saved as: {training_config.config_dst}")
 
@@ -38,7 +33,7 @@ def train(training_config: dict) -> None:
         single_fold_split=training_config.single_fold_split,
     )
 
-    # get model definition
+    # define model
     model = get_model(
         model_arch=training_config.model_architecture,
         classes=dataset_folds.number_of_classes,
@@ -105,7 +100,7 @@ def run_training(config) -> None:
     training_config = TrainingConfig(config)
     logger.info(f"Successfully read config-file: {config}")
 
-    # run
+    # train
     train(training_config)
 
 
