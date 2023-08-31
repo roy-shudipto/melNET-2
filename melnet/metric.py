@@ -65,19 +65,28 @@ class Metric:
         self.accuracy[phase] = round(self.accuracy[phase] * 100.0, 2)
 
         # calculate precision
-        self.precision[phase] = self.confusion_mat[phase]["tp"] / (
-            self.confusion_mat[phase]["tp"] + self.confusion_mat[phase]["fp"]
-        )
-        self.precision[phase] = round(self.precision[phase], 2)
+        try:
+            self.precision[phase] = self.confusion_mat[phase]["tp"] / (
+                self.confusion_mat[phase]["tp"] + self.confusion_mat[phase]["fp"]
+            )
+            self.precision[phase] = round(self.precision[phase], 2)
+        except ZeroDivisionError:
+            self.precision[phase] = 0.0
 
         # calculate sensitivity or, recall
-        self.sensitivity[phase] = self.confusion_mat[phase]["tp"] / (
-            self.confusion_mat[phase]["tp"] + self.confusion_mat[phase]["fn"]
-        )
-        self.sensitivity[phase] = round(self.sensitivity[phase], 2)
+        try:
+            self.sensitivity[phase] = self.confusion_mat[phase]["tp"] / (
+                self.confusion_mat[phase]["tp"] + self.confusion_mat[phase]["fn"]
+            )
+            self.sensitivity[phase] = round(self.sensitivity[phase], 2)
+        except ZeroDivisionError:
+            self.sensitivity[phase] = 0.0
 
         # calculate specificity
-        self.specificity[phase] = self.confusion_mat[phase]["tn"] / (
-            +self.confusion_mat[phase]["tn"] + self.confusion_mat[phase]["fp"]
-        )
-        self.specificity[phase] = round(self.specificity[phase], 2)
+        try:
+            self.specificity[phase] = self.confusion_mat[phase]["tn"] / (
+                +self.confusion_mat[phase]["tn"] + self.confusion_mat[phase]["fp"]
+            )
+            self.specificity[phase] = round(self.specificity[phase], 2)
+        except ZeroDivisionError:
+            self.specificity[phase] = 0.0
