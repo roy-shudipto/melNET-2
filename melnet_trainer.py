@@ -94,8 +94,8 @@ def run_training(config) -> None:
             epochs=training_config.epochs,
             train_dataloader=dataloader_dict["train"],
             val_dataloader=dataloader_dict["val"],
-            checkpoint_path=training_config.get_checkpoint_path(fold),
-            log_path=training_config.get_log_path(fold),
+            checkpoint_path=training_config.get_checkpoint_path(fold + 1),
+            log_path=training_config.get_log_path(fold + 1),
         )
 
         # run trainer

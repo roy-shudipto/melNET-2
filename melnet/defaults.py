@@ -7,8 +7,16 @@ LOG_HEADERS = [
     "EPOCH",
     "TRAIN LOSS",
     "TRAIN ACCURACY",
+    "TRAIN PRECISION",
+    "TRAIN SENSITIVITY",
+    "TRAIN SPECIFICITY",
+    "TRAIN CM",
     "VAL LOSS",
     "VAL ACCURACY",
+    "VAL PRECISION",
+    "VAL SENSITIVITY",
+    "VAL SPECIFICITY",
+    "VAL CM",
 ]
 CLASS_MAP = {
     "not_melanoma": 0,

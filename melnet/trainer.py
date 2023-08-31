@@ -4,7 +4,7 @@ import torch
 from loguru import logger
 
 from melnet.defaults import LOG_HEADERS
-from melnet.metric import Metric, MetricNew
+from melnet.metric import Metric
 from melnet.utils import gpu2cpu
 
 
@@ -94,16 +94,12 @@ class Trainer:
                     self.scheduler.step()
 
                 else:
-                    # deep copy the model if epoch accuracy improves
-                    if epoch_acc >= best_acc:
-                        best_acc = epoch_acc
-                        best_loss = epoch_loss
+                    # deep copy the model if epoch accuracy (in validation) improves
+                    if metric.accuracy[phase] >= best_acc:
+                        best_acc = metric.accuracy[phase]
+                        best_loss = metric.loss[phase]
                         best_model_state_dict = copy.deepcopy(model.state_dict())
                         best_epoch = epoch
-
-                    # store result in metric
-                    metric.val_loss = epoch_loss
-                    metric.val_acc = epoch_acc
 
             # update log
             df_log = pd.concat(
@@ -112,26 +108,32 @@ class Trainer:
                     pd.DataFrame(
                         {
                             "EPOCH": [epoch],
-                            "TRAIN LOSS": [metric.train_loss],
-                            "TRAIN ACCURACY": [metric.train_acc],
-                            "VAL LOSS": [metric.val_loss],
-                            "VAL ACCURACY": [metric.val_acc],
+                            "TRAIN LOSS": [metric.loss["train"]],
+                            "TRAIN ACCURACY": [metric.accuracy["train"]],
+                            "TRAIN PRECISION": [metric.precision["train"]],
+                            "TRAIN SENSITIVITY": [metric.sensitivity["train"]],
+                            "TRAIN SPECIFICITY": [metric.specificity["train"]],
+                            "TRAIN CM": [metric.confusion_mat["train"]],
+                            "VAL LOSS": [metric.loss["val"]],
+                            "VAL ACCURACY": [metric.accuracy["val"]],
+                            "VAL PRECISION": [metric.precision["val"]],
+                            "VAL SENSITIVITY": [metric.sensitivity["val"]],
+                            "VAL SPECIFICITY": [metric.specificity["val"]],
+                            "VAL CM": [metric.confusion_mat["val"]],
                         }
                     ),
                 ],
                 axis=0,
             )
 
+            # display epoch performance
             logger.info(
                 f"Epoch {str(epoch).zfill(len(str(self.epochs)))}/{self.epochs}: "
-                + f"Train Loss={metric.train_loss:.2f}, "
-                + f"Train Accuracy={metric.train_acc:.2f}, "
-                + f"Val Loss={metric.val_loss:.2f}, "
-                + f"Val Accuracy={metric.val_acc:.2f}"
+                + f"Train Loss={metric.loss['train']:.2f}, "
+                + f"Train Accuracy={metric.accuracy['train']:.2f}, "
+                + f"Val Loss={metric.loss['val']:.2f}, "
+                + f"Val Accuracy={metric.accuracy['val']:.2f}"
             )
-            print(metric_new.loss)
-            print(metric_new.accuracy)
-            exit()
 
         # best performance
         logger.info(
