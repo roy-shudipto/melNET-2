@@ -1,6 +1,5 @@
 import click
 import pathlib
-import shutil
 from loguru import logger
 
 from melnet.config import TrainingConfig
@@ -15,21 +14,7 @@ from melnet.model import (
 from melnet.trainer import Trainer
 
 
-@click.command()
-@click.option(
-    "--config",
-    type=str,
-    required=True,
-    help="Path to the training-config [.yaml] file.",
-)
-def run_training(config) -> None:
-    # convert config from str to pathlib.Path
-    config = pathlib.Path(config)
-
-    # read config file
-    training_config = TrainingConfig(config)
-    logger.info(f"Successfully read config-file: {config}")
-
+def train(training_config: dict) -> None:
     # create a directory for checkpoint (if needed)
     if not training_config.checkpoint_directory.exists():
         training_config.checkpoint_directory.mkdir(parents=True, exist_ok=True)
@@ -41,11 +26,9 @@ def run_training(config) -> None:
             f"Checkpoint directory already exists: {training_config.checkpoint_directory}"
         )
 
-    # make a copy of the config file to the checkpoint-directory
-    shutil.copy(config, training_config.config_dst)
-    logger.info(
-        f"Copied config-file to checkpoint-directory: {training_config.config_dst}"
-    )
+    # save training-config to the checkpoint-directory
+    training_config.save()
+    logger.info(f"Training-config is saved as: {training_config.config_dst}")
 
     # get multi-fold datasets
     dataset_folds = ClassificationDatasetFolds(
@@ -105,6 +88,25 @@ def run_training(config) -> None:
         trainer.run()
 
     logger.info("Successfully completed the training.")
+
+
+@click.command()
+@click.option(
+    "--config",
+    type=str,
+    required=True,
+    help="Path to the training-config [.yaml] file.",
+)
+def run_training(config) -> None:
+    # convert config from str to pathlib.Path
+    config = pathlib.Path(config)
+
+    # read config file
+    training_config = TrainingConfig(config)
+    logger.info(f"Successfully read config-file: {config}")
+
+    # run
+    train(training_config)
 
 
 if __name__ == "__main__":

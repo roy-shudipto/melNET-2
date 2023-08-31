@@ -95,20 +95,32 @@ class TrainingConfig:
             obj = self.config
             for key in keys:
                 obj = obj[key]
-
-            # convert value to the expected datatype
-            try:
-                logger.debug(f"Config {keys} = {obj}")
-                if obj is not None:
-                    return data_type(obj)
-                else:
-                    return None
-            except ValueError:
-                logger.error(f"Failed to convert {obj} to {data_type}.")
-                exit(1)
-
         except KeyError:
             logger.error(f"Key: {keys} is not found in the config.")
+            exit(1)
+
+        # boolean
+        if data_type is bool:
+            if obj in [True, False]:
+                logger.debug(f"Config {keys} = {data_type(obj)}")
+                return obj
+            else:
+                logger.error(f"Key: {keys} needs to be a boolean [true, false].")
+                exit(1)
+
+        # convert value to the expected datatype
+        try:
+            if obj is None:
+                logger.debug(f"Config {keys} = None")
+                return None
+            elif str(obj).upper() in ["NONE", "NULL"]:
+                logger.debug(f"Config {keys} = None")
+                return None
+            else:
+                logger.debug(f"Config {keys} = {data_type(obj)}")
+                return data_type(obj)
+        except ValueError:
+            logger.error(f"Failed to convert {obj} to {data_type}.")
             exit(1)
 
     def get_log_path(self, fold: int) -> pathlib.Path:
@@ -118,3 +130,7 @@ class TrainingConfig:
     def get_checkpoint_path(self, fold: int) -> pathlib.Path:
         filename = f"checkpoint_fold{fold}{CHECKPOINT_EXTENSION}"
         return self.checkpoint_directory / pathlib.Path(filename)
+
+    def save(self) -> None:
+        with open(self.config_dst, "w") as file:
+            yaml.dump(self.config, file, sort_keys=False)
