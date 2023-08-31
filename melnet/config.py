@@ -1,12 +1,14 @@
 import pathlib
 import yaml
 from datetime import datetime
+from itertools import product
 from loguru import logger
 from typing import List, Optional
 
 from melnet.defaults import (
     CHECKPOINT_EXTENSION,
     CONFIG_EXTENSION,
+    CONFIG_OUTPUT_NAME,
     LOG_EXTENSION,
     MODEL_LIST,
     OPTIMIZER_LIST,
@@ -14,22 +16,8 @@ from melnet.defaults import (
 
 
 class TrainingConfig:
-    def __init__(self, config_path: pathlib.Path) -> None:
-        logger.info(f"Reading config-file: {config_path}")
-
-        # check config-file extension
-        if config_path.suffix.lower() != CONFIG_EXTENSION.lower():
-            logger.error(
-                f"Config file: {config_path} needs to have {CONFIG_EXTENSION} extension."
-            )
-            exit(1)
-
-        # read config
-        try:
-            self.config = yaml.safe_load(open(config_path.as_posix()))
-        except FileNotFoundError:
-            logger.error(f"Config file: {config_path} is not found.")
-            exit(1)
+    def __init__(self, config: dict) -> None:
+        self.config = config
 
         # read parameters
         self.dataset_root = pathlib.Path(self._read_param(["DATASET_ROOT"], str))
@@ -87,7 +75,7 @@ class TrainingConfig:
         self.checkpoint_directory = self.checkpoint_root / pathlib.Path(checkpoint_name)
 
         # generate path for copying config-file
-        self.config_dst = self.checkpoint_directory / config_path.name
+        self.config_dst = self.checkpoint_directory / CONFIG_OUTPUT_NAME
 
     def _read_param(self, keys: List, data_type: type) -> Optional[any]:
         # get the parameter value
@@ -134,3 +122,41 @@ class TrainingConfig:
     def save(self) -> None:
         with open(self.config_dst, "w") as file:
             yaml.dump(self.config, file, sort_keys=False)
+
+
+def parse_config(config_path: pathlib.Path) -> List[dict]:
+    logger.info(f"Reading config-file: {config_path}")
+
+    # check config-file extension
+    if config_path.suffix.lower() != CONFIG_EXTENSION.lower():
+        logger.error(
+            f"Config file: {config_path} needs to have {CONFIG_EXTENSION} extension."
+        )
+        exit(1)
+
+    # read config
+    try:
+        config = yaml.safe_load(open(config_path.as_posix()))
+    except FileNotFoundError:
+        logger.error(f"Config file: {config_path} is not found.")
+        exit(1)
+
+    # generate config-variations
+    val_list = []
+    for _, val in config.items():
+        if isinstance(val, list):
+            val_list.append(val)
+        else:
+            val_list.append([val])
+
+    combinations = list(product(*val_list))
+
+    config_variations = []
+    for combination in combinations:
+        config_dict = {}
+        for idx, key in enumerate(config.keys()):
+            config_dict[key] = combination[idx]
+
+        config_variations.append(config_dict)
+
+    return config_variations

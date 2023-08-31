@@ -2,7 +2,7 @@ import click
 import pathlib
 from loguru import logger
 
-from melnet.config import TrainingConfig
+from melnet.config import parse_config, TrainingConfig
 from melnet.dataset import ClassificationDatasetFolds
 from melnet.model import (
     get_model,
@@ -14,7 +14,11 @@ from melnet.model import (
 from melnet.trainer import Trainer
 
 
-def train(training_config: dict) -> None:
+def train(config: dict) -> None:
+    # get training-config
+    training_config = TrainingConfig(config)
+    logger.info("Successfully read training-config.")
+
     # create a directory for checkpoint
     training_config.checkpoint_directory.mkdir(parents=True, exist_ok=True)
     logger.info(
@@ -95,14 +99,19 @@ def train(training_config: dict) -> None:
 )
 def run_training(config) -> None:
     # convert config from str to pathlib.Path
-    config = pathlib.Path(config)
+    config_path = pathlib.Path(config)
 
-    # read config file
-    training_config = TrainingConfig(config)
-    logger.info(f"Successfully read config-file: {config}")
+    # multiple training-configs will be generated if parameters contain a list
+    # of values instead of a single value.
+    config_variations = parse_config(config_path)
+    logger.info(f"Number of training-config variations: {len(config_variations)}")
 
     # train
-    train(training_config)
+    for idx, config_variation in enumerate(config_variations):
+        logger.info(
+            f"Training with training-config: {idx + 1} / {len(config_variations)}."
+        )
+        train(config_variation)
 
 
 if __name__ == "__main__":
