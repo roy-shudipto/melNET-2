@@ -1,6 +1,6 @@
 # DATASET_ROOT: It should have two subdirectories called [melanoma] and [not_melanoma].
 # CHECKPOINT ROOT: A sub-directory will be generated to save logs, plots and checkpoint.
-# MODEL_ARCHITECTURE: Choices are ["RESNET50", "RESNET101", "RESNET152"]
+# MODEL_ARCHITECTURE: Choices are ["RESNET18", "RESNET50", "RESNET101", "RESNET152"]
 # LOAD_CHECKPOINT: Path to a checkpoint for transfer-learning. Default: [null]
 # FINE_TUNE_FC: If [true], all the layers, except fully-connected ones, will be frozen.
 # INPUT_SIZE: Size of an input image (INPUT_SIZE x INPUT_SIZE).

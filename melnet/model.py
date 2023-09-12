@@ -15,6 +15,8 @@ def get_model(*, model_arch, classes, load_checkpoint, fine_tune_fc):
         model = models.resnet101(weights="ResNet101_Weights.DEFAULT")
     elif model_arch.lower() == "resnet50":
         model = models.resnet50(weights="ResNet50_Weights.DEFAULT")
+    elif model_arch.lower() == "resnet18":
+        model = models.resnet18(weights="ResNet18_Weights.DEFAULT")
     else:
         logger.error(f"[MODEL: {model_arch}] is not supported by PyTorch.")
         exit(1)
