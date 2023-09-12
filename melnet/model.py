@@ -33,18 +33,19 @@ def get_model(*, model_arch, classes, load_checkpoint, fine_tune):
 
     # fine-tune customization
     if fine_tune == "all_layers":
-        logger.info("Fine-tune: all layers.")
+        for param in model.parameters():
+            param.requires_grad = True
 
     elif fine_tune == "fc_layers":
         for name, param in model.named_parameters():
             if name.find("fc") < 0:
                 param.requires_grad = False
-        logger.info("Fine-tune: fully-connected layers.")
+            else:
+                param.requires_grad = True
 
     elif fine_tune == "last_layer":
         for param in model.parameters():
             param.requires_grad = False
-        logger.info("Fine-tune: last layer.")
 
     else:
         logger.error(f"Unable to customize fine-tuning using [fine_tune={fine_tune}].")

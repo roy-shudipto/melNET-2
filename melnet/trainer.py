@@ -133,13 +133,13 @@ class Trainer:
             # calculate epoch perfomance for the current phase
             metric.calc_score(phase=phase)
 
-        # log epoch performance
-        logger.info(
-            f"Epoch {str(epoch).zfill(len(str(self.epochs)))}/{self.epochs}: "
-            + f"Train Loss={metric.loss['train']:.2f}, "
-            + f"Train Accuracy={metric.accuracy['train']:.2f}, "
-            + f"Val Loss={metric.loss['val']:.2f}, "
-            + f"Val Accuracy={metric.accuracy['val']:.2f}"
-        )
+        # # log epoch performance
+        # logger.info(
+        #     f"Epoch {str(epoch).zfill(len(str(self.epochs)))}/{self.epochs}: "
+        #     + f"Train Loss={metric.loss['train']:.2f}, "
+        #     + f"Train Accuracy={metric.accuracy['train']:.2f}, "
+        #     + f"Val Loss={metric.loss['val']:.2f}, "
+        #     + f"Val Accuracy={metric.accuracy['val']:.2f}"
+        # )
 
         return metric, model.state_dict()
