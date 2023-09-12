@@ -20,22 +20,23 @@ class TrainingConfig:
         self.config = config
 
         # read parameters
-        self.dataset_root = pathlib.Path(self._read_param(["DATASET_ROOT"], str))
-        self.checkpoint_root = pathlib.Path(self._read_param(["CHECKPOINT_ROOT"], str))
-        self.model_architecture = self._read_param(["MODEL_ARCHITECTURE"], str)
-        self.load_checkpoint = self._read_param(["LOAD_CHECKPOINT"], str)
-        self.fine_tune_fc = self._read_param(["FINE_TUNE_FC"], bool)
-        self.optimizer = self._read_param(["OPTIMIZER"], str)
-        self.learning_rate = self._read_param(["LEARNING_RATE"], float)
-        self.schedular_step = self._read_param(["SCHEDULER_STEP"], float)
-        self.schedular_gamma = self._read_param(["SCHEDULER_GAMMA"], float)
-        self.momentum = self._read_param(["MOMENTUM"], float)
-        self.num_workers = self._read_param(["NUM_WORKER"], int)
-        self.batch_size = self._read_param(["BATCH_SIZE"], int)
-        self.epochs = self._read_param(["EPOCHS"], int)
-        self.input_size = self._read_param(["INPUT_SIZE"], int)
-        self.cross_validation_fold = self._read_param(["CROSS_VALIDATION_FOLDS"], int)
-        self.single_fold_split = self._read_param(["SINGLE_FOLD_SPLIT"], float)
+        self.dataset_root = pathlib.Path(self._read_param("DATASET_ROOT", str))
+        self.checkpoint_root = pathlib.Path(self._read_param("CHECKPOINT_ROOT", str))
+        self.model_architecture = self._read_param("MODEL_ARCHITECTURE", str)
+        self.load_checkpoint = self._read_param("LOAD_CHECKPOINT", str)
+        self.fine_tune_fc = self._read_param("FINE_TUNE_FC", bool)
+        self.optimizer = self._read_param("OPTIMIZER", str)
+        self.learning_rate = self._read_param("LEARNING_RATE", float)
+        self.schedular_step = self._read_param("SCHEDULER_STEP", float)
+        self.schedular_gamma = self._read_param("SCHEDULER_GAMMA", float)
+        self.momentum = self._read_param("MOMENTUM", float)
+        self.num_workers = self._read_param("NUM_WORKER", int)
+        self.batch_size = self._read_param("BATCH_SIZE", int)
+        self.epochs = self._read_param("EPOCHS", int)
+        self.input_size = self._read_param("INPUT_SIZE", int)
+        self.cross_validation_fold = self._read_param("CROSS_VALIDATION_FOLDS", int)
+        self.single_fold_split = self._read_param("SINGLE_FOLD_SPLIT", float)
+        self.write_checkpoint = self._read_param("WRITE_CHECKPOINT", bool)
 
         # check: model_architecture is supported
         if self.model_architecture not in MODEL_LIST:
@@ -77,35 +78,33 @@ class TrainingConfig:
         # generate path for copying config-file
         self.config_dst = self.checkpoint_directory / CONFIG_OUTPUT_NAME
 
-    def _read_param(self, keys: List, data_type: type) -> Optional[any]:
+    def _read_param(self, key: str, data_type: type) -> Optional[any]:
         # get the parameter value
         try:
-            obj = self.config
-            for key in keys:
-                obj = obj[key]
+            obj = self.config[key]
         except KeyError:
-            logger.error(f"Key: {keys} is not found in the config.")
+            logger.error(f"Key: {key} is not found in the config.")
             exit(1)
 
         # boolean
         if data_type is bool:
             if obj in [True, False]:
-                logger.debug(f"Config {keys} = {data_type(obj)}")
+                logger.debug(f"Config {key} = {data_type(obj)}")
                 return obj
             else:
-                logger.error(f"Key: {keys} needs to be a boolean [true, false].")
+                logger.error(f"Key: {key} needs to be a boolean [true, false].")
                 exit(1)
 
         # convert value to the expected datatype
         try:
             if obj is None:
-                logger.debug(f"Config {keys} = None")
+                logger.debug(f"Config {key} = None")
                 return None
             elif str(obj).upper() in ["NONE", "NULL"]:
-                logger.debug(f"Config {keys} = None")
+                logger.debug(f"Config {key} = None")
                 return None
             else:
-                logger.debug(f"Config {keys} = {data_type(obj)}")
+                logger.debug(f"Config {key} = {data_type(obj)}")
                 return data_type(obj)
         except ValueError:
             logger.error(f"Failed to convert {obj} to {data_type}.")

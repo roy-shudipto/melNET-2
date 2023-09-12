@@ -21,6 +21,7 @@ class Trainer:
         val_dataloader,
         checkpoint_path,
         log_path,
+        write_checkpoint,
     ) -> None:
         self.model = model
         self.device = device
@@ -31,6 +32,7 @@ class Trainer:
         self.dataloaders = {"train": train_dataloader, "val": val_dataloader}
         self.checkpoint_path = checkpoint_path
         self.log_path = log_path
+        self.write_checkpoint = write_checkpoint
 
     def run(self) -> None:
         # initiate training-logging
@@ -72,16 +74,17 @@ class Trainer:
         )
 
         # save the best checkpoint
-        torch.save(
-            {
-                "epoch": best_epoch,
-                "model_state_dict": best_model_state_dict,
-                "optimizer_state_dict": self.optimizer.state_dict(),
-                "metric": best_metric,
-            },
-            self.checkpoint_path,
-        )
-        logger.info(f"Checkpoint is saved as: {self.checkpoint_path}")
+        if self.write_checkpoint:
+            torch.save(
+                {
+                    "epoch": best_epoch,
+                    "model_state_dict": best_model_state_dict,
+                    "optimizer_state_dict": self.optimizer.state_dict(),
+                    "metric": best_metric,
+                },
+                self.checkpoint_path,
+            )
+            logger.info(f"Checkpoint is saved as: {self.checkpoint_path}")
 
         # save training-log
         training_log.save(path=self.log_path)
