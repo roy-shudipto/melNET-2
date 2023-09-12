@@ -14,7 +14,7 @@ class Metric:
         self.loss = {"train": None, "val": None}
         self.accuracy = {"train": None, "val": None}
         self.precision = {"train": None, "val": None}
-        self.sensitivity = {"train": None, "val": None}
+        self.recall = {"train": None, "val": None}
         self.specificity = {"train": None, "val": None}
         self.f1_score = {"train": None, "val": None}
 
@@ -89,14 +89,14 @@ class Metric:
         except ZeroDivisionError:
             self.precision[phase] = 0.0
 
-        # calculate sensitivity or, recall
+        # calculate recall or, sensitivity
         try:
-            self.sensitivity[phase] = self.confusion_mat[phase]["tp"] / (
+            self.recall[phase] = self.confusion_mat[phase]["tp"] / (
                 self.confusion_mat[phase]["tp"] + self.confusion_mat[phase]["fn"]
             )
-            self.sensitivity[phase] = round(self.sensitivity[phase], 2)
+            self.recall[phase] = round(self.recall[phase], 2)
         except ZeroDivisionError:
-            self.sensitivity[phase] = 0.0
+            self.recall[phase] = 0.0
 
         # calculate specificity
         try:
@@ -109,9 +109,9 @@ class Metric:
 
         # calculate f1-score
         try:
-            self.f1_score[phase] = (
-                2 * self.precision[phase] * self.sensitivity[phase]
-            ) / (self.precision[phase] + self.sensitivity[phase])
+            self.f1_score[phase] = (2 * self.precision[phase] * self.recall[phase]) / (
+                self.precision[phase] + self.recall[phase]
+            )
             self.f1_score[phase] = round(self.f1_score[phase], 2)
         except ZeroDivisionError:
             self.f1_score[phase] = 0.0
