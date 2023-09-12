@@ -42,7 +42,7 @@ def train(config: dict) -> None:
         model_arch=training_config.model_architecture,
         classes=dataset_folds.number_of_classes,
         load_checkpoint=training_config.load_checkpoint,
-        fine_tune_fc=training_config.fine_tune_fc,
+        fine_tune=training_config.fine_tune,
     )
     device = get_device()
     criterion = get_loss_function()

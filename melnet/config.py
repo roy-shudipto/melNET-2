@@ -9,6 +9,7 @@ from melnet.defaults import (
     CHECKPOINT_EXTENSION,
     CONFIG_EXTENSION,
     CONFIG_OUTPUT_NAME,
+    FINE_TUNE_OPTIONS,
     LOG_EXTENSION,
     MODEL_LIST,
     OPTIMIZER_LIST,
@@ -24,7 +25,7 @@ class TrainingConfig:
         self.checkpoint_root = pathlib.Path(self._read_param("CHECKPOINT_ROOT", str))
         self.model_architecture = self._read_param("MODEL_ARCHITECTURE", str)
         self.load_checkpoint = self._read_param("LOAD_CHECKPOINT", str)
-        self.fine_tune_fc = self._read_param("FINE_TUNE_FC", bool)
+        self.fine_tune = self._read_param("FINE_TUNE", str)
         self.optimizer = self._read_param("OPTIMIZER", str)
         self.learning_rate = self._read_param("LEARNING_RATE", float)
         self.schedular_step = self._read_param("SCHEDULER_STEP", float)
@@ -50,6 +51,12 @@ class TrainingConfig:
         if self.optimizer not in OPTIMIZER_LIST:
             logger.error(f"Optimizer: {self.optimizer} is not supported.")
             logger.error(f"Supported Optimizers: {OPTIMIZER_LIST}.")
+            exit(1)
+
+        # check: fine_tune is supported
+        if self.fine_tune not in FINE_TUNE_OPTIONS:
+            logger.error(f"Fine tune: {self.fine_tune} is not supported.")
+            logger.error(f"Supported Fine tune options: {FINE_TUNE_OPTIONS}.")
             exit(1)
 
         # check: cross_validation_fold is valid

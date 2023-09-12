@@ -2,7 +2,7 @@
 # CHECKPOINT ROOT: A sub-directory will be generated to save logs, plots and checkpoint.
 # MODEL_ARCHITECTURE: Choices are ["RESNET18", "RESNET50", "RESNET101", "RESNET152"]
 # LOAD_CHECKPOINT: Path to a checkpoint for transfer-learning. Default: [null]
-# FINE_TUNE_FC: If [true], all the layers, except fully-connected ones, will be frozen.
+# FINE_TUNE: Choices are ["all_layers", "fc_layers", "last_layer"]
 # INPUT_SIZE: Size of an input image (INPUT_SIZE x INPUT_SIZE).
 # OPTIMIZER: Choices are ["ADAM", "SGD"].
 # LEARNING_RATE: Learning rate value.
@@ -21,7 +21,8 @@ CHECKPOINT_ROOT: "../checkpoints/"
 MODEL_ARCHITECTURE: 
   - "RESNET50"
 LOAD_CHECKPOINT: null
-FINE_TUNE_FC: false
+FINE_TUNE: 
+  - "fc_layer"
 INPUT_SIZE: 400
 OPTIMIZER: 
   - "ADAM"
@@ -37,4 +38,4 @@ EPOCHS: 3
 CROSS_VALIDATION_FOLDS: 
   - 1
 SINGLE_FOLD_SPLIT: 0.75
-WRITE_CHECKPOINT: true
+WRITE_CHECKPOINT: false

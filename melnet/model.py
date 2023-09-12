@@ -7,7 +7,7 @@ from torchvision import models
 
 
 # model
-def get_model(*, model_arch, classes, load_checkpoint, fine_tune_fc):
+def get_model(*, model_arch, classes, load_checkpoint, fine_tune):
     # load a pretrained model
     if model_arch.lower() == "resnet152":
         model = models.resnet152(weights="ResNet152_Weights.DEFAULT")
@@ -21,10 +21,6 @@ def get_model(*, model_arch, classes, load_checkpoint, fine_tune_fc):
         logger.error(f"[MODEL: {model_arch}] is not supported by PyTorch.")
         exit(1)
 
-    # reset final layer as the number of classes
-    num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, classes)
-
     # load checkpoint
     if load_checkpoint is not None:
         try:
@@ -35,12 +31,28 @@ def get_model(*, model_arch, classes, load_checkpoint, fine_tune_fc):
             logger.error(f"Unable to load checkpoint from: {load_checkpoint}")
             exit(1)
 
-    # fine-tune FC-layers only
-    if fine_tune_fc is True:
-        for name, para in model.named_parameters():
+    # fine-tune customization
+    if fine_tune == "all_layers":
+        logger.info("Fine-tune: all layers.")
+
+    elif fine_tune == "fc_layers":
+        for name, param in model.named_parameters():
             if name.find("fc") < 0:
-                para.requires_grad = False
-        logger.info("Fine-tuning only fully-connected layers.")
+                param.requires_grad = False
+        logger.info("Fine-tune: fully-connected layers.")
+
+    elif fine_tune == "last_layer":
+        for param in model.parameters():
+            param.requires_grad = False
+        logger.info("Fine-tune: last layer.")
+
+    else:
+        logger.error(f"Unable to customize fine-tuning using [fine_tune={fine_tune}].")
+        exit(1)
+
+    # reset final layer as the number of classes
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Linear(num_ftrs, classes)
 
     return model
 

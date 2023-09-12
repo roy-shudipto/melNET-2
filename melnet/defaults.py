@@ -1,5 +1,6 @@
 MODEL_LIST = ["RESNET18", "RESNET50", "RESNET101", "RESNET152"]
 OPTIMIZER_LIST = ["ADAM", "SGD"]
+FINE_TUNE_OPTIONS = ["all_layers", "fc_layers", "last_layer"]
 CHECKPOINT_EXTENSION = ".pt"
 CONFIG_EXTENSION = ".yaml"
 CONFIG_OUTPUT_NAME = "training_config.yaml"
