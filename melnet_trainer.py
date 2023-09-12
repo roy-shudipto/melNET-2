@@ -37,26 +37,6 @@ def train(config: dict) -> None:
         single_fold_split=training_config.single_fold_split,
     )
 
-    # define model
-    model = get_model(
-        model_arch=training_config.model_architecture,
-        classes=dataset_folds.number_of_classes,
-        load_checkpoint=training_config.load_checkpoint,
-        fine_tune=training_config.fine_tune,
-    )
-    device = get_device()
-    criterion = get_loss_function()
-    optimizer = get_optimizer(
-        training_config.optimizer,
-        model,
-        training_config.learning_rate,
-        training_config.momentum,
-    )
-    scheduler = get_scheduler(
-        optimizer, training_config.schedular_step, training_config.schedular_gamma
-    )
-    logger.info(f"Model is initialized to get trained on: {device}")
-
     # run training for each fold
     for fold in range(training_config.cross_validation_fold):
         logger.info(
@@ -69,6 +49,26 @@ def train(config: dict) -> None:
             batch_size=training_config.batch_size,
             num_worker=training_config.num_workers,
         )
+
+        # define model
+        model = get_model(
+            model_arch=training_config.model_architecture,
+            classes=dataset_folds.number_of_classes,
+            load_checkpoint=training_config.load_checkpoint,
+            fine_tune=training_config.fine_tune,
+        )
+        device = get_device()
+        criterion = get_loss_function()
+        optimizer = get_optimizer(
+            training_config.optimizer,
+            model,
+            training_config.learning_rate,
+            training_config.momentum,
+        )
+        scheduler = get_scheduler(
+            optimizer, training_config.schedular_step, training_config.schedular_gamma
+        )
+        logger.info(f"Model is initialized to get trained on: {device}")
 
         # get trainer
         trainer = Trainer(
