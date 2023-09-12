@@ -16,6 +16,7 @@ class Metric:
         self.precision = {"train": None, "val": None}
         self.sensitivity = {"train": None, "val": None}
         self.specificity = {"train": None, "val": None}
+        self.f1_score = {"train": None, "val": None}
 
     @classmethod
     def calc_confusion_matrix(cls, y_true, y_pred):
@@ -105,3 +106,12 @@ class Metric:
             self.specificity[phase] = round(self.specificity[phase], 2)
         except ZeroDivisionError:
             self.specificity[phase] = 0.0
+
+        # calculate f1-score
+        try:
+            self.f1_score[phase] = (
+                2 * self.precision[phase] * self.sensitivity[phase]
+            ) / (self.precision[phase] + self.sensitivity[phase])
+            self.f1_score[phase] = round(self.f1_score[phase], 2)
+        except ZeroDivisionError:
+            self.f1_score[phase] = 0.0
