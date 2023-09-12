@@ -24,10 +24,11 @@ class Metric:
         # it returns [[batch_size]] in the case of all TNs and all TPs.
 
         # calculate confusion matrix
-        cm = confusion_matrix(y_true, y_pred).ravel()
+        cm = confusion_matrix(y_true, y_pred).ravel().tolist()
 
         # case: tn, fp, fn, tp are available
         if len(cm) == 4:
+            cm = [int(i) for i in cm]
             return tuple(cm)
 
         # case: either tn or tp is available
@@ -40,10 +41,8 @@ class Metric:
             elif np.sum(y_true) == np.sum(y_pred) == len(y_true):
                 return 0, 0, 0, len(y_true)
 
-        logger.error(
-            f"Invalid confusion matrix for y_true: [{y_true}], y_pred: [{y_pred}]"
-        )
-        logger.error(f"Calculated confusion matrix: [{cm}]]")
+        logger.error(f"Invalid confusion matrix for y_true: {y_true}, y_pred: {y_pred}")
+        logger.error(f"Calculated confusion matrix: {cm}")
         exit(1)
 
     def update(self, *, phase, loss, y_true, y_pred):
