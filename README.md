@@ -13,8 +13,7 @@ This pipeline will start training a binary classification-model.
 ### Command example
 `python3 melnet_trainer.py --config training_config.yaml`
 
-If the process gets `Killed` before MEAN and STD calculation, lower `IMAGE_SET_LIMIT_FOR_MEAN_STD_CALC`
-in `melnet/defaults.py`.
+If the process gets `Killed` before MEAN and STD calculation, lower `IMAGE_SET_LIMIT_FOR_MEAN_STD_CALC` value in `./melnet/defaults.py`.
 
 ## Generate classification-dataset from MEDNODE
 This pipeline will generate classification-dataset from MEDNODE dataset. 
