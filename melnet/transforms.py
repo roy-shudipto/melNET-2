@@ -5,7 +5,7 @@ import random
 from albumentations.pytorch import ToTensorV2
 from loguru import logger
 
-from melnet.defaults import IMAGE_SUBSET_LIMIT_FOR_MEAN_STD_CALC
+from melnet.defaults import IMAGE_SET_LIMIT_FOR_MEAN_STD_CALC
 from melnet.utils import get_RGB_image
 
 
@@ -19,11 +19,9 @@ class Transforms:
         self.calc_mean_std()
 
     def calc_mean_std(self) -> None:
-        # do this calculation over a subset of images if the dataset crosses a limit
-        if len(self.image_paths) > IMAGE_SUBSET_LIMIT_FOR_MEAN_STD_CALC:
-            sub_set = random.sample(
-                self.image_paths, IMAGE_SUBSET_LIMIT_FOR_MEAN_STD_CALC
-            )
+        # calculate over a subset of images if the dataset length crosses a limit
+        if len(self.image_paths) > IMAGE_SET_LIMIT_FOR_MEAN_STD_CALC:
+            sub_set = random.sample(self.image_paths, IMAGE_SET_LIMIT_FOR_MEAN_STD_CALC)
         else:
             sub_set = self.image_paths
 

@@ -4,7 +4,7 @@ FINE_TUNE_OPTIONS = ["all_layers", "fc_layers", "last_layer"]
 CHECKPOINT_EXTENSION = ".pt"
 CONFIG_EXTENSION = ".yaml"
 CONFIG_OUTPUT_NAME = "training_config.yaml"
-IMAGE_SUBSET_LIMIT_FOR_MEAN_STD_CALC = 1000
+IMAGE_SET_LIMIT_FOR_MEAN_STD_CALC = 3000
 LOG_EXTENSION = ".csv"
 LOG_HEADERS = [
     "EPOCH",
