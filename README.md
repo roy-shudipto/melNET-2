@@ -39,4 +39,4 @@ This pipeline will generate classification-dataset from HAM10000 dataset.
 `python3 data_processing/ham_processing.py --help`
 
 ### Command example
-`python3 data_processing/ham_processing.py --ham_root ../HAM10000 --output_root ../ham_dataset`
+`python3 data_processing/ham_processing.py --ham_root ../HAM10000 --output_root ../ham_dataset --undersample`

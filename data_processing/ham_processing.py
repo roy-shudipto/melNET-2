@@ -1,5 +1,7 @@
+import os
 import pandas as pd
 import pathlib
+import random
 import shutil
 from argparse import ArgumentParser
 from loguru import logger
@@ -35,9 +37,16 @@ if __name__ == "__main__":
         help="Root to classification dataset.",
     )
 
+    parser.add_argument(
+        "--undersample",
+        action="store_true",
+        help="Undersamples larger class to balance the dataset.",
+    )
+
     args = parser.parse_args()
     ham_root = pathlib.Path(args.ham_root)
     output_root = pathlib.Path(args.output_root)
+    undersample = args.undersample
 
     # check: HAM10000 subdirectories exist
     for sub_dir in HAM_SUBDIRS:
@@ -115,3 +124,24 @@ if __name__ == "__main__":
     logger.info("Classification-dataset counter:")
     for key, val in counter.items():
         logger.info(f"{key}: {val}")
+
+    # undersample
+    if undersample is False:
+        exit(0)
+
+    smallest_class_count = None
+    for _, class_count in counter.items():
+        if smallest_class_count is None or smallest_class_count > class_count:
+            smallest_class_count = class_count
+
+    logger.info(
+        f"After undersampling, every class will have {smallest_class_count} images."
+    )
+
+    for ham_class in HAM_CLASS_MAP.keys():
+        dataset_dir = output_root / HAM_CLASS_MAP[ham_class]
+        files = os.listdir(dataset_dir)
+        for file in random.sample(files, len(files) - smallest_class_count):
+            os.remove(dataset_dir / file)
+
+    logger.info("Undersampling done successfully!")
