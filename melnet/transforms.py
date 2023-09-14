@@ -1,8 +1,11 @@
 import albumentations as A
 import cv2
 import numpy as np
+import random
 from albumentations.pytorch import ToTensorV2
+from loguru import logger
 
+from melnet.defaults import IMAGE_SUBSET_LIMIT_FOR_MEAN_STD_CALC
 from melnet.utils import get_RGB_image
 
 
@@ -16,6 +19,15 @@ class Transforms:
         self.calc_mean_std()
 
     def calc_mean_std(self) -> None:
+        # do this calculation over a subset of images if the dataset crosses a limit
+        if len(self.image_paths) > IMAGE_SUBSET_LIMIT_FOR_MEAN_STD_CALC:
+            sub_set = random.sample(
+                self.image_paths, IMAGE_SUBSET_LIMIT_FOR_MEAN_STD_CALC
+            )
+        else:
+            sub_set = self.image_paths
+
+        # calculate mean, std
         rgb_values = (
             np.concatenate(
                 [
@@ -23,7 +35,7 @@ class Transforms:
                         get_RGB_image(image_path, color_flag=1),
                         (self.input_size, self.input_size),
                     )
-                    for image_path in self.image_paths
+                    for image_path in sub_set
                 ],
                 axis=0,
             )
@@ -33,6 +45,9 @@ class Transforms:
 
         self.mean = np.mean(rgb_values, axis=0)
         self.std = np.std(rgb_values, axis=0)
+
+        logger.info(f"Calculated Mean: {self.mean}")
+        logger.info(f"Calculated STD: {self.std}")
 
     def get_train_transform(self) -> A.Compose:
         return A.Compose(

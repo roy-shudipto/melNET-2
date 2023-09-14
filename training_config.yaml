@@ -16,8 +16,8 @@
 # SINGLE_FOLD_SPLIT: A value to split the dataset (train/val) when CROSS_VALIDATION_FOLDS=1
 # WRITE_CHECKPOINT: If [true], checkpoint will be saved as a .pt file.
 
-DATASET_ROOT: "../mednode/"
-CHECKPOINT_ROOT: "../checkpoints/"
+DATASET_ROOT: "../ham_dataset/"
+CHECKPOINT_ROOT: "../checkpoints/ham_checkpoints"
 MODEL_ARCHITECTURE: 
   - "RESNET101"
 LOAD_CHECKPOINT: null
