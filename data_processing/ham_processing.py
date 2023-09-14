@@ -144,4 +144,4 @@ if __name__ == "__main__":
         for file in random.sample(files, len(files) - smallest_class_count):
             os.remove(dataset_dir / file)
 
-    logger.info("Undersampling done successfully!")
+    logger.info("Undersampling is done successfully!")
