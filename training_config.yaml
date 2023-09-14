@@ -19,14 +19,14 @@
 DATASET_ROOT: "../mednode/"
 CHECKPOINT_ROOT: "../checkpoints/"
 MODEL_ARCHITECTURE: 
-  - "RESNET50"
+  - "RESNET101"
 LOAD_CHECKPOINT: null
 FINE_TUNE: 
   - "all_layers"
 INPUT_SIZE: 256
 OPTIMIZER: 
-  - "ADAM"
   - "SGD"
+  - "ADAM"
 LEARNING_RATE: 
   - 0.01
   - 0.001

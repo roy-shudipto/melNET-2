@@ -1,2 +1,2 @@
 black ./*.py
-black ./melnet/*.py
+black ./*/*.py

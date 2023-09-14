@@ -1,2 +1,2 @@
 flake8 ./*.py
-flake8 ./melnet/*.py
+flake8 ./*/*.py
