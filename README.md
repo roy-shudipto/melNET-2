@@ -40,3 +40,12 @@ This pipeline will generate classification-dataset from HAM10000 dataset.
 
 ### Command example
 `python3 data_processing/ham_processing.py --ham_root ../HAM10000 --output_root ../ham_dataset --undersample`
+
+## Performance analyzer
+This pipeline will analyze training-performance.
+
+### Install dependency
+`sudo apt-get install python3-tk`
+
+### Check help
+`python3 melnet_analyzer.py --help`
