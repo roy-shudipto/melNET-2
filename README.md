@@ -25,6 +25,9 @@ This pipeline will generate classification-dataset from MEDNODE dataset.
 ### Check help
 `python3 data_processing/mednode_processing.py --help`
 
+### Command example
+`python3 data_processing/mednode_processing.py --mednode_root ../MEDNODE --output_root ../mednode_dataset`
+
 ## Generate classification-dataset from HAM10000
 This pipeline will generate classification-dataset from HAM10000 dataset. 
 
